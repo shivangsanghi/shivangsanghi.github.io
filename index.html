@@ -1,6 +1,8 @@
 <html>
 
 <head>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
     <script src="test.js"></script>
     <style>
         h2, h3{
@@ -15,44 +17,70 @@
     <br />
     <br />
 
-    <h3>Enter Bets</h3>
-    <textarea id="bets" style="width: 100%; height: 50%" onChange="saveBets()"></textarea>
+    <h3>Enter Team Bets</h3>
+    <textarea id="teamBets" style="width: 100%; height: 30%" onChange="saveTeamBets()"></textarea>
     <br />
     <br />
-    
-    <h3>Overall Status</h3>
+
+    <h3>Enter Session Bets</h3>
+    <textarea id="sessionBets" style="width: 100%; height: 30%" onChange="saveSessionBets()"></textarea>
+    <br />
+    <br />
+
+    <h3 style="text-decoration: underline">Overall Status</h3>
+    <br/>
     <div id="overallStatus">
 
     </div>
     <script>
-        const betsEl = document.getElementById("bets");
-        const teamsEl = document.getElementById("teams");
-        const overallStatusEl = document.getElementById("overallStatus");
-        function saveBets() {
-            controller.saveBets(betsEl.value);
+        const teamBetsEl = $("#teamBets");
+        const sessionBetsEl = $("#sessionBets");
+        const teamsEl = $("#teams");
+        const overallStatusEl = $("#overallStatus");
+        function saveTeamBets() {
+            controller.saveTeamBets(teamBetsEl.val());
             showPredictions();
         }
 
-        function saveTeams() {
-            controller.saveTeams(teamsEl.value);
+        function saveSessionBets() {
+            controller.saveSessionBets(sessionBetsEl.val());
+            showSessionTotal();
         }
 
-
+        function saveTeams() {
+            controller.saveTeams(teamsEl.val());
+            saveTeamBets();
+            saveSessionBets();
+        }
 
         function showPredictions() {
-            overallStatusEl.innerHTML = "";
             const teams = controller.getTeams();
             const predictions = controller.getPrediction();
+            if (!overallStatusEl.has("#teamStatus").length) {
+                overallStatusEl.prepend("<div id='teamStatus'></div>");
+            }
+
+            $("#teamStatus").empty();
             for (let i = 0; i < teams.length; i++) {
-                overallStatusEl.innerHTML += `<b>${teams[i]} - </b> ${predictions[i]} <br/>`;
+                $("#teamStatus").append(`If <b>${teams[i].toUpperCase()} </b> Wins: ${predictions[i]} <br/>`);
             }
         }
 
-        betsEl.value = localStorage.getItem("bets") || "";
-        teamsEl.value = localStorage.getItem("teams") || "";
-        saveTeams();
-        saveBets();
+        function showSessionTotal() {
+            const sessionTotal = controller.getSessionTotal();
+            if (!overallStatusEl.has("#sessionStatus").length) {
+                overallStatusEl.append("<div id='sessionStatus'></div>");
+            }
+            $("#sessionStatus").empty();
+            $("#sessionStatus").append(`<b>Session Total: </b> ${sessionTotal} <br/>`);
+        }
 
+        teamBetsEl.val(localStorage.getItem("teamBets") || "");
+        sessionBetsEl.val(localStorage.getItem("sessionBets") || "");
+        teamsEl.val(localStorage.getItem("teams") || "");
+        saveTeams();
+        saveTeamBets();
+        saveSessionBets();
     </script>
 </body>
 
